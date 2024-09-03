@@ -23,9 +23,9 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "yourdomain.com",
-        ValidAudience = "yourdomain.com",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSecureKey"))
+        ValidIssuer = builder.Configuration["Jwt:Issuer"], // использует значение из appsettings.json
+        ValidAudience = builder.Configuration["Jwt:Audience"], // использует значение из appsettings.json
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])) // использует значение из appsettings.json
     };
 });
 
@@ -39,6 +39,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication(); // Добавляем аутентификацию перед авторизацией
 app.UseAuthorization();
 
 app.MapControllers();
