@@ -36,7 +36,8 @@ namespace TestAssignment.Controllers
                 return Unauthorized();
             }
 
-            var query = _context.Tasks.Where(t => t.UserId.ToString() == userId);
+            // Fix: Use IQueryable without type casting
+            var query = _context.Tasks.Where(t => t.UserId.ToString() == userId).AsQueryable();
 
             if (status.HasValue)
             {
@@ -45,7 +46,8 @@ namespace TestAssignment.Controllers
 
             if (dueDate.HasValue)
             {
-                query = query.Where(t => t.DueDate == dueDate);
+                var dueDateOnly = dueDate.Value.Date;  // compare only dates, ignoring time
+                query = query.Where(t => t.DueDate.HasValue && t.DueDate.Value.Date <= dueDateOnly);
             }
 
             if (priority.HasValue)
@@ -53,7 +55,9 @@ namespace TestAssignment.Controllers
                 query = query.Where(t => t.Priority == priority);
             }
 
+            // Apply ordering and pagination
             var tasks = await query
+                .Include(t => t.User) // Load related user data
                 .OrderBy(t => t.DueDate)
                 .ThenBy(t => t.Priority)
                 .Skip((pageNumber - 1) * pageSize)
@@ -64,30 +68,33 @@ namespace TestAssignment.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<UserTask>> CreateTask(CreateTaskDto taskDto)
+        public async Task<ActionResult<UserTask>> CreateTask(UserTask task)
         {
+            // Extract userId from token
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
             {
                 return Unauthorized();
             }
 
-            var task = new UserTask
-            {
-                Title = taskDto.Title,
-                Description = taskDto.Description,
-                DueDate = taskDto.DueDate,
-                Status = taskDto.Status,
-                Priority = taskDto.Priority,
-                UserId = new Guid(userId) // Присваиваем UserId
-            };
+            // Assign userId to the task
+            task.UserId = new Guid(userId);
 
+            // Set creation and update time
+            task.CreatedAt = DateTime.UtcNow;
+            task.UpdatedAt = task.CreatedAt;  // Update time = creation time
+
+            // Add the task to the context
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetTasks), new { id = task.Id }, task);
-        }
+            // Load the task with the User field populated
+            var createdTask = await _context.Tasks
+                .Include(t => t.User)  // Load related user data
+                .FirstOrDefaultAsync(t => t.Id == task.Id);
 
+            return CreatedAtAction(nameof(GetTasks), new { id = task.Id }, createdTask);
+        }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTask(Guid id, UserTask task)
@@ -103,7 +110,11 @@ namespace TestAssignment.Controllers
                 return Unauthorized();
             }
 
+            // Update the task's update time
+            task.UpdatedAt = DateTime.UtcNow;
+
             _context.Entry(task).State = EntityState.Modified;
+            _context.Entry(task).Property(t => t.UpdatedAt).IsModified = true;
 
             try
             {

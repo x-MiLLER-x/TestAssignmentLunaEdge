@@ -10,7 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Включаем отображение PII для отладки
 Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+    options.JsonSerializerOptions.WriteIndented = true; // Опционально для форматированного вывода
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
