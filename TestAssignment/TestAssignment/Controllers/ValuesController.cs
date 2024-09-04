@@ -55,24 +55,9 @@ namespace TestAssignment.Controllers
 
         private string CreateJwtToken(User user)
         {
-            // Получение ключа, издателя и аудитории из конфигурации
             var key = _configuration["Jwt:Key"];
-            if (string.IsNullOrEmpty(key))
-            {
-                throw new ArgumentNullException(nameof(key), "JWT Key cannot be null or empty.");
-            }
-
             var issuer = _configuration["Jwt:Issuer"];
-            if (string.IsNullOrEmpty(issuer))
-            {
-                throw new ArgumentNullException(nameof(issuer), "JWT Issuer cannot be null or empty.");
-            }
-
             var audience = _configuration["Jwt:Audience"];
-            if (string.IsNullOrEmpty(audience))
-            {
-                throw new ArgumentNullException(nameof(audience), "JWT Audience cannot be null or empty.");
-            }
 
             var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var creds = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
@@ -81,7 +66,8 @@ namespace TestAssignment.Controllers
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Username)
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Это важно!
+                new Claim(ClaimTypes.Name, user.Username)
             };
 
             var token = new JwtSecurityToken(
@@ -93,6 +79,7 @@ namespace TestAssignment.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
 
 
 
