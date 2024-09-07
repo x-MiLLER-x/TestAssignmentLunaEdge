@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "y+bqwaKqRm8+zKSvSsdiN7aYR+bmB3Go8+Em0brDeMOpdMJlE8KtT0AXAxb81QhcAaDOTMl9AWKIZAxXIRPdQw==",
+  "dgSpecHash": "jkG8Q+gts2mmb5KUZT6CNg8DSwlumE3whxhgVMeuk1KWiRrcmCQfp971xGVPUEv6n3Mn5tHaCxq0DLX467MQgQ==",
   "success": true,
   "projectFilePath": "D:\\Рабочий стол\\TestAssignmentLunaEdge\\TestAssignment\\TestAssignment\\TestAssignment.csproj",
   "expectedPackageFiles": [
@@ -52,6 +52,7 @@
     "C:\\Users\\nitro\\.nuget\\packages\\microsoft.testplatform\\17.11.1\\microsoft.testplatform.17.11.1.nupkg.sha512",
     "C:\\Users\\nitro\\.nuget\\packages\\microsoft.testplatform.objectmodel\\17.11.1\\microsoft.testplatform.objectmodel.17.11.1.nupkg.sha512",
     "C:\\Users\\nitro\\.nuget\\packages\\microsoft.testplatform.testhost\\17.11.1\\microsoft.testplatform.testhost.17.11.1.nupkg.sha512",
+    "C:\\Users\\nitro\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.19.5\\microsoft.visualstudio.azure.containers.tools.targets.1.19.5.nupkg.sha512",
     "C:\\Users\\nitro\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
     "C:\\Users\\nitro\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
     "C:\\Users\\nitro\\.nuget\\packages\\moq\\4.20.72\\moq.4.20.72.nupkg.sha512",

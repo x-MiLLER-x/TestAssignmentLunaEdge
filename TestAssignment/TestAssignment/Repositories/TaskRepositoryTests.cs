@@ -66,5 +66,62 @@ public class TaskRepositoryTests
         Assert.Equal("New Task", addedTask.Title);
     }
 
-    // Add more tests for UpdateTaskAsync and DeleteTaskAsync
+    [Fact]
+    public async Task UpdateTaskAsync_ShouldUpdateTask()
+    {
+        // Arrange: create a new task
+        var newTask = new UserTask
+        {
+            Id = Guid.NewGuid(),
+            Title = "Original Task",
+            Description = "Original Description",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        // Add the new task to the context
+        await _taskRepository.AddTaskAsync(newTask);
+
+        // Retrieve the task from the database
+        var taskInDb = await _taskRepository.GetTaskByIdAsync(newTask.Id);
+        Assert.NotNull(taskInDb);  // Ensure that the task was added
+
+        // Save the current UpdatedAt value
+        var previousUpdatedAt = taskInDb.UpdatedAt;
+
+        // Delay to ensure time difference for the update
+        await Task.Delay(1000); // 1 second
+
+        // Update the task properties
+        taskInDb.Title = "Updated Task";
+        taskInDb.Description = "Updated Description";
+        taskInDb.UpdatedAt = DateTime.UtcNow; // Explicitly update the time
+
+        // Act: update the task
+        await _taskRepository.UpdateTaskAsync(taskInDb);
+
+        // Reload the task from the database
+        var updatedTaskInDb = await _taskRepository.GetTaskByIdAsync(newTask.Id);
+
+        // Assert: verify that the update occurred
+        Assert.NotNull(updatedTaskInDb);
+        Assert.Equal("Updated Task", updatedTaskInDb.Title);
+        Assert.Equal("Updated Description", updatedTaskInDb.Description);
+        Assert.Equal(newTask.CreatedAt, updatedTaskInDb.CreatedAt); // CreatedAt should remain the same
+        Assert.True(updatedTaskInDb.UpdatedAt > previousUpdatedAt); // Ensure that UpdatedAt has changed
+    }
+
+    [Fact]
+    public async Task DeleteTaskAsync_ShouldRemoveTask()
+    {
+        // Arrange
+        var task = _context.Tasks.First();
+
+        // Act
+        await _taskRepository.DeleteTaskAsync(task.Id);
+
+        // Assert
+        var deletedTask = _context.Tasks.FirstOrDefault(t => t.Id == task.Id);
+        Assert.Null(deletedTask);
+    }
 }

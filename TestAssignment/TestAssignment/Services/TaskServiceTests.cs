@@ -57,5 +57,16 @@ public class TaskServiceTests
         _taskRepositoryMock.Verify(repo => repo.UpdateTaskAsync(taskToUpdate), Times.Once);
     }
 
-    // Add more tests for other service methods
+    [Fact]
+    public async Task DeleteTaskAsync_ShouldInvokeRepositoryDeleteMethod()
+    {
+        // Arrange
+        var taskToDelete = new UserTask { Id = Guid.NewGuid(), Title = "Delete Task" };
+
+        // Act
+        await _taskService.DeleteTaskAsync(taskToDelete.Id);
+
+        // Assert
+        _taskRepositoryMock.Verify(repo => repo.DeleteTaskAsync(taskToDelete.Id), Times.Once);
+    }
 }
