@@ -4,16 +4,20 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using TestAssignment.Data;
+using TestAssignment.Repositories;
+using TestAssignment.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Включаем отображение PII для отладки
+// Enable PII display for debugging
 Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
 
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<TaskService>();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-    options.JsonSerializerOptions.WriteIndented = true; // Опционально для форматированного вывода
+    options.JsonSerializerOptions.WriteIndented = true; // Optional for formatted output
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -56,9 +60,9 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"], // использует значение из appsettings.json
-        ValidAudience = builder.Configuration["Jwt:Audience"], // использует значение из appsettings.json
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])), // использует значение из appsettings.json
+        ValidIssuer = builder.Configuration["Jwt:Issuer"], // Uses value from appsettings.json
+        ValidAudience = builder.Configuration["Jwt:Audience"], // Uses value from appsettings.json
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])), // Uses value from appsettings.json
         ClockSkew = TimeSpan.Zero
     };
 
@@ -85,7 +89,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseAuthentication(); // Добавляем аутентификацию перед авторизацией
+app.UseAuthentication(); // Add authentication before authorization
 app.UseAuthorization();
 
 app.MapControllers();

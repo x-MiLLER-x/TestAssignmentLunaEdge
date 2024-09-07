@@ -19,8 +19,8 @@ namespace TestAssignment.Migrations
                     Username = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()")
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    UpdatedAt = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,29 +28,29 @@ namespace TestAssignment.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tasks",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    Priority = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tasks", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Tasks_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                 name: "Tasks",
+                 columns: table => new
+                 {
+                     Id = table.Column<Guid>(nullable: false),
+                     Title = table.Column<string>(nullable: false),
+                     Description = table.Column<string>(nullable: true),
+                     DueDate = table.Column<DateTime>(nullable: true),
+                     Status = table.Column<int>(nullable: false),
+                     Priority = table.Column<int>(nullable: false),
+                     CreatedAt = table.Column<DateTime>(nullable: false),
+                     UpdatedAt = table.Column<DateTime>(nullable: false),
+                     UserId = table.Column<Guid>(nullable: true)
+                 },
+                 constraints: table =>
+                 {
+                     table.PrimaryKey("PK_Tasks", x => x.Id);
+                     table.ForeignKey(
+                         name: "FK_Tasks_Users_UserId",
+                         column: x => x.UserId,
+                         principalTable: "Users",
+                         principalColumn: "Id",
+                         onDelete: ReferentialAction.Restrict);
+                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tasks_UserId",

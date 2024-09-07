@@ -25,22 +25,20 @@ namespace TestAssignment.Data
 
             // Automatically set creation and update time
             modelBuilder.Entity<User>()
-                .Property(u => u.CreatedAt)
-                .HasDefaultValueSql("GETDATE()");
+                 .Property(u => u.CreatedAt)
+                 .IsRequired();
 
             modelBuilder.Entity<User>()
                 .Property(u => u.UpdatedAt)
-                .HasDefaultValueSql("GETDATE()")
-                .ValueGeneratedOnAddOrUpdate();
+                .IsRequired();
 
             modelBuilder.Entity<UserTask>()
                 .Property(t => t.CreatedAt)
-                .HasDefaultValueSql("GETDATE()");
+                .IsRequired();
 
             modelBuilder.Entity<UserTask>()
                 .Property(t => t.UpdatedAt)
-                .HasDefaultValueSql("GETDATE()")
-                .ValueGeneratedOnAddOrUpdate();
+                .IsRequired();
 
             // One to many relationship between User and UserTask
             modelBuilder.Entity<UserTask>()

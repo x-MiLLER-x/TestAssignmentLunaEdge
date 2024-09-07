@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using TestAssignment.Data;
 using TestAssignment.Models;
+using TestAssignment.Services;
 
 namespace TestAssignment.Controllers
 {
@@ -13,6 +15,7 @@ namespace TestAssignment.Controllers
     [Route("api/[controller]")]
     public class TaskController : ControllerBase
     {
+
         private readonly ILogger<TaskController> _logger;
         private readonly ApplicationDbContext _context;
 
@@ -20,6 +23,12 @@ namespace TestAssignment.Controllers
         {
             _context = context;
             _logger = logger;
+        }
+        private readonly TaskService _taskService;
+
+        public TaskController(TaskService taskService)
+        {
+            _taskService = taskService;
         }
 
         [HttpGet]
@@ -66,11 +75,9 @@ namespace TestAssignment.Controllers
 
             return Ok(tasks);
         }
-
         [HttpPost]
         public async Task<ActionResult<UserTask>> CreateTask(UserTask task)
         {
-            // Extract userId from token
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
             {
@@ -80,9 +87,9 @@ namespace TestAssignment.Controllers
             // Assign userId to the task
             task.UserId = new Guid(userId);
 
-            // Set creation and update time
+            // Set creation and update time to be the same
             task.CreatedAt = DateTime.UtcNow;
-            task.UpdatedAt = task.CreatedAt;  // Update time = creation time
+            task.UpdatedAt = DateTime.UtcNow;
 
             // Add the task to the context
             _context.Tasks.Add(task);
@@ -90,7 +97,7 @@ namespace TestAssignment.Controllers
 
             // Load the task with the User field populated
             var createdTask = await _context.Tasks
-                .Include(t => t.User)  // Load related user data
+                .Include(t => t.User)
                 .FirstOrDefaultAsync(t => t.Id == task.Id);
 
             return CreatedAtAction(nameof(GetTasks), new { id = task.Id }, createdTask);
@@ -110,11 +117,25 @@ namespace TestAssignment.Controllers
                 return Unauthorized();
             }
 
-            // Update the task's update time
+            // Retrieve the existing task from the database
+            var existingTask = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id && t.UserId == new Guid(userId));
+
+            if (existingTask == null)
+            {
+                return NotFound();
+            }
+
+            // Preserve the original CreatedAt value
+            task.CreatedAt = existingTask.CreatedAt;
+
+            // Update the UpdatedAt field
             task.UpdatedAt = DateTime.UtcNow;
 
-            _context.Entry(task).State = EntityState.Modified;
-            _context.Entry(task).Property(t => t.UpdatedAt).IsModified = true;
+            // Update only the properties that have been changed, while keeping CreatedAt intact
+            _context.Entry(existingTask).CurrentValues.SetValues(task);
+
+            // Ensure CreatedAt is not updated
+            _context.Entry(existingTask).Property(t => t.CreatedAt).IsModified = false;
 
             try
             {
@@ -134,6 +155,8 @@ namespace TestAssignment.Controllers
 
             return NoContent();
         }
+
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(Guid id)

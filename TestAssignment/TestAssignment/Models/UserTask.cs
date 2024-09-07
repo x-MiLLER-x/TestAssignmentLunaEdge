@@ -5,17 +5,17 @@ namespace TestAssignment.Models
     public class UserTask
     {
         public Guid Id { get; set; }
-        public string Title { get; set; } // Название задачи все еще обязательно
-        public string? Description { get; set; } // Описание задачи может быть необязательным
-        public DateTime? DueDate { get; set; } // Дата завершения может быть необязательной
-        public TaskStatus Status { get; set; } // Статус задачи обязательный
-        public TaskPriority Priority { get; set; } // Приоритет задачи обязательный
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Дата создания обязательная
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow; // Дата обновления обязательная
-        public Guid? UserId { get; set; } // Поле UserId может быть nullable, если оно необязательно
+        public string Title { get; set; } // Task title is still required
+        public string? Description { get; set; } // Task description can be optional
+        public DateTime? DueDate { get; set; } // Due date can be optional
+        public TaskStatus Status { get; set; } // Task status is required
+        public TaskPriority Priority { get; set; } // Task priority is required
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Creation date is required
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public Guid? UserId { get; set; } // UserId can be nullable if it's optional
 
-        [JsonIgnore]  // Избегаем циклической зависимости
-        public User? User { get; set; } // Поле User также может быть nullable
+        [JsonIgnore]  // Avoid cyclic dependencies
+        public User? User { get; set; } // User field can also be nullable
     }
 
     public enum TaskStatus { Pending, InProgress, Completed }
